@@ -1,0 +1,53 @@
+/* V4 opening: all readable content shares one intrinsic layout.
+   Only the decorative grid is absolutely positioned. Scroll transforms the
+   whole layer, so headline/paragraph spacing remains invariant. */
+.cinema .cinema-opening{
+  display:grid;grid-template-rows:auto minmax(0,1fr) auto;
+  gap:clamp(20px,3svh,34px);padding:clamp(108px,12svh,145px) 6% 32px;
+  --orbit-tilt-x:0deg;--orbit-tilt-y:0deg;--grid-x:0px;--grid-y:0px;--opening-progress:0;
+}
+.cinema .cinema-kicker{position:relative;inset:auto;z-index:1;min-width:0;gap:20px;align-items:center;font-size:8px;line-height:1.8}
+.cinema .cinema-editorial{position:relative;z-index:1;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-content:center;align-items:center;column-gap:2%;row-gap:clamp(24px,4svh,48px);min-width:0}
+.cinema .cinema-title-wrap{position:relative;inset:auto;grid-column:1/-1;grid-row:1;min-width:0}
+.cinema .cinema-editorial h1{font-size:clamp(26px,7.08vw,136px);font-family:var(--font-display);font-weight:700;line-height:1.04;letter-spacing:-.035em;max-width:100%}
+.cinema .cinema-editorial .cinema-line{font-size:1em;line-height:1.07;letter-spacing:inherit;white-space:nowrap;text-align:left;margin:0;padding:0 .025em .08em;overflow:hidden}
+.cinema .cinema-editorial .cinema-line-two{font-size:1.15em;margin-top:.045em}
+.cinema .cinema-editorial .cinema-line em{color:var(--white);-webkit-text-stroke:0;font-style:normal;letter-spacing:inherit}
+.cinema .cinema-editorial .cinema-line em:after{content:none}
+.opening-editorial-rule{position:relative;width:35%;height:1px;background:#f7a50488;margin-top:clamp(18px,2.6svh,30px)}
+.opening-editorial-rule>span{display:block;position:absolute;left:0;top:-2px;width:5px;height:5px;background:var(--orange);transform:translateX(calc(var(--opening-progress)*200px));transition:transform .1s linear}
+.cinema .cinema-description{position:relative;inset:auto;grid-column:7/-1;grid-row:2;max-width:37ch;width:100%;justify-self:start;min-width:0}
+.cinema .cinema-description p{font-family:var(--font-body);font-size:13px;line-height:1.85;color:#aaa8ae;max-width:none}
+.cinema .cinema-description>a{font-size:11px;line-height:1.5;margin-top:18px;min-height:36px;gap:40px}
+.cinema .cinema-opening-bottom{position:relative;inset:auto;z-index:1;display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:end;min-width:0}
+.cinema .cinema-opening-bottom>.micro{max-width:none;font-size:8px;line-height:1.8}
+.cinema .cinema-opening-bottom .cinema-skip{justify-self:end;max-width:max-content}
+.cinema .cinema-scroll{font-size:8px;line-height:1.7;gap:18px;min-height:44px}
+.cinema .cinema-scroll-icon{position:relative;width:48px;height:48px;overflow:visible}
+.cinema-scroll-icon>i{position:absolute;inset:-1px;border-radius:50%;border:1px solid var(--orange);clip-path:inset(0 calc(100% - var(--opening-progress)*100%) 0 0);transform:rotate(-90deg);pointer-events:none}
+.cinema-scroll-icon>svg{animation:opening-scroll-invitation 3.8s ease-in-out infinite}
+.editorial-grid{position:absolute;inset:0;z-index:0;opacity:.04;pointer-events:none;background-image:linear-gradient(#a9a7a4 1px,transparent 1px),linear-gradient(90deg,#a9a7a4 1px,transparent 1px);background-size:100px 100px;mask-image:linear-gradient(120deg,transparent 25%,#000 85%);transform:translate(var(--grid-x),var(--grid-y));transition:transform .7s ease-out}
+.opening-orbit{grid-column:1/5;grid-row:2;width:clamp(110px,12vw,210px);justify-self:start;pointer-events:none;perspective:600px}
+.opening-orbit-tilt{transform:rotateX(var(--orbit-tilt-x)) rotateY(var(--orbit-tilt-y));transition:transform .65s ease-out}
+.opening-orbit svg{display:block;width:100%;height:auto;overflow:visible}
+.opening-orbit>.micro{display:block;font-size:6px;letter-spacing:.08em;color:#77757e;text-align:center;white-space:nowrap;margin-top:4px}
+.orbit-path-one,.orbit-path-two,.orbit-tracking-point{transform-box:view-box;transform-origin:50% 50%}
+.orbit-path-one{animation:editorial-orbit-turn 55s linear infinite}
+.orbit-path-two{animation:editorial-orbit-turn 85s linear infinite reverse}
+.orbit-tracking-point{animation:editorial-orbit-turn 32s linear infinite}
+.cinema-opening[inert] .opening-orbit *,.cinema-opening[inert] .cinema-scroll-icon>svg{animation-play-state:paused}
+@keyframes editorial-orbit-turn{to{transform:rotate(360deg)}}
+@keyframes opening-scroll-invitation{0%,70%,100%{transform:translateY(0)}80%{transform:translateY(3px)}}
+/* Keep intrinsic rows and use height-aware type, rather than percentage top offsets. */
+@media(min-width:1800px){.cinema .cinema-opening{padding-left:8%;padding-right:8%}.cinema .cinema-editorial h1{font-size:clamp(100px,6.7vw,145px)}.cinema .cinema-description{grid-column:8/-1}}
+@media(max-height:760px) and (min-width:900px){.cinema .cinema-opening{padding-top:110px;padding-bottom:28px;gap:18px}.cinema .cinema-editorial{row-gap:22px}.cinema .cinema-editorial h1{font-size:clamp(40px,min(7.08vw,12svh),115px)}.opening-orbit{width:125px}.cinema .cinema-description p{font-size:12px;line-height:1.75}.cinema .cinema-description>a{margin-top:12px}.opening-editorial-rule{margin-top:15px}}
+@media(max-width:899px){.cinema .cinema-opening{padding-top:110px;padding-bottom:30px;gap:26px}.cinema .cinema-kicker{font-size:7px}.cinema .cinema-editorial{row-gap:35px}.cinema .cinema-editorial h1{font-size:7.08vw}.cinema .cinema-description{grid-column:6/-1;max-width:34ch}.cinema .cinema-description p{font-size:13px}.opening-orbit{width:125px}.opening-orbit>.micro{font-size:5px}.editorial-grid{background-size:70px 70px;opacity:.025}}
+@media(max-width:600px){.cinema .cinema-opening{padding:100px 6% 28px;gap:24px}.cinema .cinema-kicker{font-size:6.5px;line-height:1.8}.cinema .cinema-kicker>span:last-child{display:none}.cinema .cinema-editorial{row-gap:32px;column-gap:0}.cinema .cinema-editorial h1{font-size:7.08vw;line-height:1.08}.cinema .cinema-editorial .cinema-line{padding-bottom:.11em;line-height:1.12}.cinema .cinema-editorial .cinema-line-two{font-size:1.15em;margin-top:.07em}.opening-editorial-rule{width:43%;margin-top:22px}.cinema .cinema-description{grid-column:1/10;max-width:28ch}.cinema .cinema-description p{font-size:12px;line-height:1.85}.cinema .cinema-description>a{font-size:10px;gap:30px;margin-top:18px}.opening-orbit{grid-column:10/-1;width:100%;max-width:82px;align-self:center;justify-self:end}.opening-orbit>.micro{display:none}.editorial-grid{background-size:56px 56px;opacity:.025}.cinema .cinema-opening-bottom{grid-template-columns:1fr auto;gap:15px;align-items:center}.cinema .cinema-opening-bottom>.micro{font-size:6.5px;line-height:1.8}.cinema .cinema-opening-bottom .cinema-skip{display:none}.cinema .cinema-scroll{font-size:7px;gap:12px}.cinema .cinema-scroll-icon{height:42px;width:42px}}
+@media(max-width:899px) and (max-height:740px){.cinema .cinema-editorial{row-gap:22px}.cinema .cinema-opening{gap:18px}.cinema .cinema-description p{line-height:1.75}}
+@media(prefers-reduced-motion:reduce){.opening-orbit *,.cinema-scroll-icon>svg{animation:none!important}.opening-orbit-tilt,.editorial-grid{transform:none!important;transition:none!important}.opening-editorial-rule>span{transition:none}.cinema.cinema-reduced .cinema-opening{display:grid;min-height:690px;height:auto;grid-template-rows:auto minmax(350px,1fr) auto}}
+/* Short viewports retain the same grid and a reachable scroll invitation. */
+.cinema:not(.cinema-reduced) .cinema-frame{min-height:600px}
+/* Avoid a full-headline flash before the client installs the masked reveal.
+   GSAP reveals this layer synchronously with its initial child states; a
+   noscript rule keeps the content available when JavaScript is disabled. */
+.cinema .cinema-opening{visibility:hidden}

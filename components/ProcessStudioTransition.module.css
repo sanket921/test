@@ -1,0 +1,1 @@
+.stage{position:relative;perspective:1800px;perspective-origin:50% 50%;overflow:clip}.stage>section{backface-visibility:hidden;transform-style:preserve-3d}@media(prefers-reduced-motion:reduce){.stage{perspective:none}.stage>section{transform-style:flat}}
