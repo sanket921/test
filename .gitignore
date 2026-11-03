@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.*
+
+# Next.js and build output
+.next/
+out/
+build/
+dist/
+.vercel/
+*.tsbuildinfo
+
+# Environment files (sanitized examples may be committed)
+.env*
+!.env.example
+!.env.*.example
+
+# Credentials and private keys
+.npmrc
+.netrc
+*.pem
+*.key
+credentials.json
+auth.json
+
+# Logs and test reports
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+coverage/
+playwright-report/
+test-results/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local agent/configuration and internal review notes
+.codex/
+.agents/
+AGENTS.md
+QA.md
+AUDIO-NOTES.md
+INTERSECTION-NOTES.md
+V7-NOTES.md
+VERCEL-PREVIEW.md
