@@ -1,0 +1,7 @@
+.root:global(.opening-dotfield)[data-field]{background:#08070b;pointer-events:none;contain:strict}
+.root:global(.opening-dotfield)[data-field] .canvas{opacity:0;transition:opacity 1s ease}
+.root:global(.opening-dotfield)[data-renderer=webgl] .canvas{opacity:1}
+.root:global(.opening-dotfield)[data-field] .shade{background:linear-gradient(90deg,#08070b30,transparent 65%),linear-gradient(0deg,#08070b55,transparent 25%,transparent 80%,#08070b20)}
+.root:global(.opening-dotfield)[data-renderer=initializing],.root:global(.opening-dotfield)[data-renderer=static-fallback]{background-color:#08070b;background-image:radial-gradient(#77777d80 .65px,transparent .9px);background-size:7px 7px}
+.root:global(.opening-dotfield)[data-renderer=static-fallback] .canvas{display:none}
+@media(prefers-reduced-motion:reduce){.root:global(.opening-dotfield)[data-field] .canvas{transition:none}}
