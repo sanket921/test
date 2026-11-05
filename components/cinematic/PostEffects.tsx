@@ -11,7 +11,7 @@ export default function PostEffects() {
   const composer = useMemo(() => {
     const c = new EffectComposer(gl);
     c.addPass(new RenderPass(scene, camera));
-    c.addPass(new UnrealBloomPass(new THREE.Vector2(512, 512), .16, .3, 1.15));
+    c.addPass(new UnrealBloomPass(new THREE.Vector2(512, 512), .1, .25, .9));
     c.addPass(new OutputPass());
     return c;
   }, [gl, scene, camera]);

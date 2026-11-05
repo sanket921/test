@@ -6,10 +6,12 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { MotionState } from './cinematic/motion';
 import { usePointerController } from './cinematic/PointerController';
-import OpeningOrbit from './cinematic/OpeningOrbit';
+import HeroShowreel from './HeroShowreel';
+import OrbitEntrance from './OrbitEntrance';
+import InteractiveHeroField from './cinematic/InteractiveHeroField';
 const Sculpture = dynamic(() => import('./Sculpture'), { ssr: false });
 function CoreFallback() {
-  return <div className="core-fallback"><svg viewBox="0 0 600 600" role="img" aria-label="Static illustration of the conceptual segmented Kinetic Core"><defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#f0f0eb"/><stop offset=".4" stopColor="#4b5059"/><stop offset=".7" stopColor="#9399a2"/><stop offset="1" stopColor="#1f2228"/></linearGradient></defs><g fill="none" stroke="url(#metal)">{[245,225,193,155,112].map((r,i)=><circle key={r} cx="300" cy="300" r={r} strokeWidth={i===4?32:12} strokeDasharray={i===4?'42 8':'83 5'} transform={`rotate(${i*19} 300 300)`}/>)}</g><g stroke="#f7a504" strokeWidth="3">{[0,60,120,180,240,300].map(a=><path key={a} d="M 535 300 L 545 300" transform={`rotate(${a} 300 300)`}/>)}</g></svg><span className="micro">STATIC CONCEPT / WEBGL UNAVAILABLE</span></div>;
+  return <div className="core-fallback"><img src="/assets/models/the-orbit-poster.jpg" alt="The Orbit: still from the supplied Craftech360 product film" style={{width:'100%',height:'100%',objectFit:'contain'}}/><span className="micro">THE ORBIT / STATIC PRODUCT REFERENCE</span></div>;
 }
 class SceneBoundary extends Component<{children:ReactNode},{failed:boolean}> {
   state = { failed: false };
@@ -27,6 +29,7 @@ export default function CinematicHero({children}:{children:ReactNode}) {
   const meter = useRef<HTMLSpanElement>(null);
   const motion = useRef<MotionState>({progress:0, paused:false, dragX:0, dragY:0, velocityX:0, velocityY:0, dragging:false, pointerX:0, pointerY:0, lastInteraction:0, reset:0});
   const [ready,setReady] = useState(false);
+  const introHashApplied = useRef(false);
   const [webgl,setWebgl] = useState(false);
   const [reduced,setReduced] = useState(false);
   const [mobile,setMobile] = useState(false);
@@ -62,13 +65,12 @@ export default function CinematicHero({children}:{children:ReactNode}) {
     const context = gsap.context(() => {
       gsap.set(openingLayer.current,{visibility:'visible'});
       if(reduced){motion.current.progress=.52;return;}
-      const opening=gsap.timeline({defaults:{ease:'power3.out'}});
+      let entryDelay=0;try{if(!location.hash&&!sessionStorage.getItem('c360-entered'))entryDelay=.75}catch{}
+      const opening=gsap.timeline({delay:entryDelay,defaults:{ease:'power3.out'}});
       opening.from('.cinema-kicker',{autoAlpha:0,x:-12,duration:.5},.1)
         .from('.cinema-line-one .line-inner',{yPercent:115,duration:.85},.34)
         .from('.cinema-line-two .line-inner',{yPercent:115,duration:.95},.62)
         .from('.cinema-description',{opacity:0,y:14,duration:.65},1.6)
-        .from('.opening-editorial-rule',{scaleX:0,transformOrigin:'left',duration:.75},1.45)
-        .from('.opening-orbit,.editorial-grid',{opacity:0,duration:.8,stagger:.08},1.65)
         .from('.cinema-opening-bottom',{opacity:0,y:10,duration:.6},2.03);
       const sequence=gsap.timeline({scrollTrigger:{
         trigger:root.current, pin:frame.current, start:'top top', end:()=>`+=${innerHeight*(mobile?1.65:4)}`,
@@ -78,14 +80,17 @@ export default function CinematicHero({children}:{children:ReactNode}) {
       trigger.current=sequence.scrollTrigger??null;
       sequence.to(motion.current,{progress:1,ease:'none',duration:1},0)
         .to('.cinema-opening',{yPercent:-32,opacity:0,ease:'power2.in',duration:.17},.17)
-        .to('.opening-orbit',{xPercent:30,yPercent:-12,rotation:28,ease:'power2.inOut',duration:.18},.16)
-        .to('.opening-editorial-rule',{xPercent:10,ease:'none',duration:.16},.17)
+        .fromTo('.opening-dotfield',{opacity:1},{opacity:0,immediateRender:false,ease:'power2.inOut',duration:.12},.12)
         .fromTo('.cinema-scene',{autoAlpha:0},{autoAlpha:1,duration:.12,ease:'none'},.205)
         .fromTo('.cinema-caption',{autoAlpha:0,y:15},{autoAlpha:1,y:0,duration:.07},.31)
         .to('.cinema-caption',{autoAlpha:0,y:-15,duration:.06},.74)
         .to('.cinema-scene',{autoAlpha:0,duration:.04},.95)
-        .fromTo('.cinema-intro',{autoAlpha:0,clipPath:'circle(0% at 50% 50%)',scale:1.08},{autoAlpha:1,clipPath:'circle(150% at 50% 50%)',scale:1,duration:.12,ease:'power2.inOut'},.88);
-      const phases=['01 / THE POSSIBILITY','02 / THE REVEAL','03 / THE KINETIC CORE','04 / INTO THE UNEXPECTED','05 / THE INTERSECTION'];
+        .fromTo('.blueprint-bridge',{autoAlpha:0},{autoAlpha:1,duration:.06},.78)
+        .fromTo('.bridge-trace ellipse,.bridge-trace path',{strokeDashoffset:1},{strokeDashoffset:0,autoRound:false,duration:.2,ease:'none'},.78)
+        .fromTo('.bridge-wash',{clipPath:'circle(0% at 50% 50%)'},{clipPath:'circle(150% at 50% 50%)',duration:.14,ease:'power2.inOut'},.86)
+        .fromTo('.blueprint-bridge svg',{scale:.8,rotation:-12},{scale:1.15,rotation:0,duration:.22,ease:'sine.inOut'},.78)
+        .fromTo('.cinema-intro',{autoAlpha:0,clipPath:'circle(0% at 50% 50%)',scale:1},{autoAlpha:1,clipPath:'circle(150% at 50% 50%)',scale:1,duration:.12,ease:'power2.inOut'},.88);
+      const phases=['01 / THE POSSIBILITY','02 / THE REVEAL','03 / THE ORBIT','04 / INTO THE UNEXPECTED','05 / THE INTERSECTION'];
       let previousPhase=-1;
       sequence.eventCallback('onUpdate',()=>{
         const p=motion.current.progress;
@@ -98,7 +103,7 @@ export default function CinematicHero({children}:{children:ReactNode}) {
       });
       const skip=(e:MouseEvent)=>{const a=(e.target as HTMLElement).closest<HTMLAnchorElement>('a[href="#intro"]');if(!a||!trigger.current)return;e.preventDefault();history.replaceState(null,'','#intro');window.scrollTo({top:trigger.current.end,behavior:'smooth'});};
       document.addEventListener('click',skip);
-      const refresh = requestAnimationFrame(()=>{ ScrollTrigger.sort(); ScrollTrigger.refresh(); });
+      const refresh = requestAnimationFrame(()=>{ ScrollTrigger.sort(); ScrollTrigger.refresh(); if(location.hash==='#intro'&&!introHashApplied.current){introHashApplied.current=true;window.scrollTo({top:trigger.current?.end??0,behavior:'instant'});} });
       let alive = true;
       document.fonts.ready.then(()=>{if(alive){ScrollTrigger.sort();ScrollTrigger.refresh();}});
       return()=>{alive=false;cancelAnimationFrame(refresh);document.removeEventListener('click',skip);trigger.current=null;};
@@ -108,29 +113,30 @@ export default function CinematicHero({children}:{children:ReactNode}) {
   const explore = () => { if(trigger.current)window.scrollTo({top:trigger.current.start+(trigger.current.end-trigger.current.start)*.48,behavior:reduced?'auto':'smooth'}); };
   return <section ref={root} id="home" className={`cinema ${reduced?'cinema-reduced':''}`} aria-label="Craftech360 cinematic introduction">
     <noscript><style>{`.cinema .cinema-opening{visibility:visible!important}`}</style></noscript>
+    <OrbitEntrance/>
     <div ref={frame} className="cinema-frame" data-phase="0">
       <div ref={openingLayer} className="cinema-opening" onPointerMove={e=>{if(mobile||reduced||e.pointerType==='touch')return;const r=e.currentTarget.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;e.currentTarget.style.setProperty('--orbit-tilt-x',`${-y*8}deg`);e.currentTarget.style.setProperty('--orbit-tilt-y',`${x*10}deg`);e.currentTarget.style.setProperty('--grid-x',`${x*5}px`);e.currentTarget.style.setProperty('--grid-y',`${y*5}px`);}} onPointerLeave={e=>{['--orbit-tilt-x','--orbit-tilt-y','--grid-x','--grid-y'].forEach(key=>e.currentTarget.style.removeProperty(key))}}>
-        <div className="editorial-grid" aria-hidden="true"/>
+        <HeroShowreel/>
+        <InteractiveHeroField/>
         <div className="cinema-kicker micro"><span><b className="status"/> CRAFTECH360 / CREATIVE TECHNOLOGY</span><span>IMAGINATION, IN MOTION.</span></div>
         <div className="cinema-editorial">
           <div className="cinema-title-wrap">
-            <h1><span className="cinema-line cinema-line-one"><span className="line-inner">WE MAKE TECHNOLOGY</span></span><span className="cinema-line cinema-line-two"><span className="line-inner">AN <em>EXPERIENCE.</em></span></span></h1>
-            <div className="opening-editorial-rule" aria-hidden="true"><span/></div>
+            <h1><span className="cinema-line cinema-line-one"><span className="line-inner">WE MAKE TECHNOLOGY</span></span><span className="cinema-line cinema-line-two"><span className="line-inner">AN <em>EXPERIENCE</em></span></span></h1>
+
           </div>
-          <OpeningOrbit/>
           <div className="cinema-description"><p>We design, engineer, and bring extraordinary experiences to life through kinetic innovation, immersive technology, and intelligent interactions.</p><a href="#work">Explore our work <ArrowUpRight size={17}/></a></div>
         </div>
-        <div className="cinema-opening-bottom"><span className="micro">DESIGN × ENGINEERING<br/>× EXPERIENCE</span><button onClick={explore} className="cinema-scroll" aria-label="Scroll to reveal the Kinetic Core"><span>SCROLL TO<br/>EXPLORE</span><span className="cinema-scroll-icon"><ArrowDown size={21}/><i aria-hidden="true"/></span></button><a className="micro cinema-skip" href="#intro">SKIP THE INTRO ↗</a></div>
+        <div className="cinema-opening-bottom"><span className="micro">DESIGN × ENGINEERING<br/>× EXPERIENCE</span><button onClick={explore} className="cinema-scroll" aria-label="Scroll to reveal The Orbit"><span>SCROLL TO<br/>EXPLORE</span><span className="cinema-scroll-icon"><ArrowDown size={21}/></span></button><a className="micro cinema-skip" href="#intro">SKIP THE INTRO ↗</a></div>
       </div>
-      <div ref={scene} className="cinema-scene" role="group" aria-label="Interactive conceptual Kinetic Core. Drag horizontally or use arrow keys to rotate. Home resets orientation." tabIndex={-1}>
+      <div ref={scene} className="cinema-scene" role="group" aria-label="Interactive Craftech360 Orbit product model. Drag horizontally or use arrow keys to rotate. Home resets orientation." tabIndex={-1}>
         <div className="cinema-halo"/>
         {ready&&webgl?<SceneBoundary><Sculpture motion={motion} reduced={reduced} mobile={mobile} visible={visible}/></SceneBoundary>:<CoreFallback/>}
       </div>
-      <div className="cinema-caption" aria-hidden="true"><div><span className="micro">MOTION STUDY / C—001</span><h2>C360<br/><span>Kinetic Core.</span></h2></div><p className="micro">THOUGHT IN MOTION.<br/>PRECISION IN EVERY DIMENSION.<br/><span>ORIGINAL CONCEPT / NOT AN EXISTING PRODUCT</span></p></div>
+      <div className="cinema-caption" aria-hidden="true"><div><span className="micro">MOTION STUDY / C—001</span><h2>THE<br/><span>Orbit.</span></h2></div><p className="micro">THOUGHT IN MOTION.<br/>PRECISION IN EVERY DIMENSION.<br/><span>CRAFTECH360 / THE ORBIT</span></p></div>
       <div ref={controls} className="cinema-controls"><span className="micro">↔ DRAG TO EXPLORE</span><button onClick={()=>{motion.current.paused=!paused;setPaused(!paused)}} aria-label={paused?'Resume idle motion':'Pause idle motion'} aria-pressed={paused}>{paused?<Play size={14}/>:<Pause size={14}/>}</button><button onClick={()=>motion.current.reset++} aria-label="Reset sculpture orientation"><RotateCcw size={14}/></button></div>
+      <div className="blueprint-bridge" aria-hidden="true"><div className="bridge-wash"/><svg viewBox="0 0 900 900" preserveAspectRatio="xMidYMid meet"><g className="bridge-trace" fill="none" stroke="#f7a504" strokeWidth=".8" pathLength="1"><ellipse cx="450" cy="450" rx="260" ry="310" pathLength="1" strokeDasharray="1"/><ellipse cx="450" cy="450" rx="180" ry="250" transform="rotate(35 450 450)" pathLength="1" strokeDasharray="1"/><path d="M450 110V790M120 450H780M240 780H660" pathLength="1" strokeDasharray="1"/></g></svg></div>
       <div className="cinema-tracker micro" aria-hidden="true"><span ref={stage}>01 / THE POSSIBILITY</span><span>SCROLL TO TRANSFORM <ArrowDown size={12}/></span></div>
-      <div className="cinema-intro">{children}</div>
-      <div className="cinema-progress" aria-hidden="true"><span ref={meter}/></div>
     </div>
+    <div className="cinema-intro">{children}</div>
   </section>;
 }

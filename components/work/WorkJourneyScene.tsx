@@ -15,6 +15,7 @@ function GalleryWorld({motion}:{motion:MutableRefObject<WorkMotion>}){
  }),[]);
  const position=useMemo(()=>new THREE.Vector3(),[]),target=useMemo(()=>new THREE.Vector3(),[]);
  const atmosphere=useRef<THREE.Group>(null);
+ const hoverZoom=useRef(1);
  useFrame(({camera},delta)=>{
   const p=THREE.MathUtils.clamp(motion.current.progress,0,1);
   path.getPoint(p,position);look.getPoint(p,target);
@@ -23,16 +24,20 @@ function GalleryWorld({motion}:{motion:MutableRefObject<WorkMotion>}){
   position.z+=THREE.MathUtils.smoothstep(p,.92,1)*1.5;
   camera.position.lerp(position,1-Math.exp(-Math.min(delta,.04)*12));
   camera.up.set(Math.sin(p*Math.PI*2)*.012,1,0);camera.lookAt(target);
+  // Texture-space hover framing leaves every approved card/camera transform intact.
+  const proximity=Math.min(1,Math.hypot(motion.current.pointerX,motion.current.pointerY));
+  hoverZoom.current=THREE.MathUtils.damp(hoverZoom.current,1-proximity*.018,8,Math.min(delta,.04));
+  maps.forEach(map=>{map.repeat.setScalar(hoverZoom.current);map.offset.set((1-hoverZoom.current)*.5+motion.current.pointerX*.002,(1-hoverZoom.current)*.5+motion.current.pointerY*.002)});
   if(atmosphere.current)atmosphere.current.position.copy(target);
  });
- return <><color attach="background" args={['#101015']}/><fog attach="fog" args={['#101015',25,75]}/>
+ return <><color attach="background" args={['#1b1c20']}/><fog attach="fog" args={['#1b1c20',25,75]}/>
  {locations.map((position,i)=><group key={i} position={position} rotation={[0,angles[i],0]}>
-  <mesh position={[0,0,-.08]}><boxGeometry args={[10.3,5.86,.1]}/><meshBasicMaterial color="#34343c"/></mesh>
-  <mesh><planeGeometry args={[10.15,5.71]}/><meshBasicMaterial map={maps[i]} toneMapped={false}/></mesh>
+  <mesh position={[0,0,-.08]}><boxGeometry args={[10.3,5.86,.1]}/><meshBasicMaterial color="#62646c"/></mesh>
+  <mesh><planeGeometry args={[10.15,5.71]}/><meshBasicMaterial map={maps[i]} color={[1.18,1.18,1.18]} toneMapped={false}/></mesh>
   <mesh position={[-4.8,3.05,-.02]}><planeGeometry args={[.5,.025]}/><meshBasicMaterial color="#f7a504"/></mesh>
   <mesh position={[.4,-.3,-2.6]}><planeGeometry args={[10.15,5.71]}/><meshBasicMaterial map={maps[i]} transparent opacity={.1} toneMapped={false}/></mesh>
  </group>)}
- <group ref={atmosphere}><mesh position={[0,-3.4,-1]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[90,90]}/><meshBasicMaterial color="#14141a"/></mesh></group>
+ <group ref={atmosphere}><mesh position={[0,-3.4,-1]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[90,90]}/><meshBasicMaterial color="#222329"/></mesh></group>
  </>;
 }
 export default memo(function WorkJourneyScene({motion,visible}:{motion:MutableRefObject<WorkMotion>;visible:boolean}){

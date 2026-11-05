@@ -12,3 +12,4 @@ AUDIO-NOTES.md
 
 # Keep internal notes out of deployment uploads
 *.md
+public/assets/fonts/polysans-trial-*
